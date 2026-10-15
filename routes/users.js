@@ -6,6 +6,13 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 
+//get one user 
+
+
+// create user
+
+
+//updata user
 
 
 

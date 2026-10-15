@@ -21,6 +21,14 @@ const Users = database.define("users",{
     password : {
         type : DataTypes.STRING,
         allowNull : false,
+    },
+    image : {
+        type : DataTypes.STRING,
+        allowNull : true,
+    },
+    role : {
+        type : DataTypes.STRING,
+        allowNull : false,
     }
 });
 
