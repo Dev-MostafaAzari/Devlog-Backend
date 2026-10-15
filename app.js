@@ -3,6 +3,14 @@ const express = require("express");
 const app = express();
 require("dotenv").config();
 const database = require("./database");
+app.use(express.json());
+// ----routes----
+
+// users
+const users = require("./routes/users");
+app.use("/users",users);
+
+
 
 const port = 5000;
 
