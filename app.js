@@ -4,6 +4,8 @@ const app = express();
 require("dotenv").config();
 const database = require("./database");
 app.use(express.json());
+// public files
+app.use(express.static("public"));
 
 // ----routes----
 
