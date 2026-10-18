@@ -3,12 +3,17 @@ const express = require("express");
 const app = express();
 require("dotenv").config();
 const database = require("./database");
+const cookieParser = require("cookie-parser");
 const cors = require("cors");
 app.use(express.json());
+
 // cors config
 app.use(cors({
     origin : process.env.ORIGIN_URL
 }));
+
+// cookie-Parser
+app.use(cookieParser());
 
 // public files
 app.use(express.static("public"));

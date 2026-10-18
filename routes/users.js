@@ -58,8 +58,15 @@ router.post("/signIn", upload.single("image") ,async (req , res)=>{
             image : file?.filename  ? file.filename  : defaultImage,
             role : role
         });
-        const token  = jwt.sign({name : name , mobile : mobile},process.env.SECRET_KEY);
-        res.status(201).send([token,{name:name,mobile:mobile,image:(file?.filename ? file.filename :defaultImage)}]);
+        const token  = jwt.sign({name : name , mobile : mobile},process.env.SECRET_KEY,{expiresIn:"1440min"});
+        res.cookie("accessToken",token,{
+            httpOnly : true,
+            secure : false,
+            sameSite :"lax",
+            maxAge : 24*60*60*1000,
+            path:"/"
+        })
+        res.status(201).send("your Account Created !");
     } catch (error) {
         let errorMessage = error.message;
         if(error.errors){
