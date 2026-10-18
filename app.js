@@ -9,7 +9,8 @@ app.use(express.json());
 
 // cors config
 app.use(cors({
-    origin : process.env.ORIGIN_URL
+    origin : process.env.ORIGIN_URL,
+    credentials : true
 }));
 
 // cookie-Parser
