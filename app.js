@@ -3,7 +3,13 @@ const express = require("express");
 const app = express();
 require("dotenv").config();
 const database = require("./database");
+const cors = require("cors");
 app.use(express.json());
+// cors config
+app.use(cors({
+    origin : process.env.ORIGIN_URL
+}));
+
 // public files
 app.use(express.static("public"));
 
