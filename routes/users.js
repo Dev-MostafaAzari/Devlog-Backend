@@ -40,7 +40,7 @@ router.post("/signIn", upload.single("image") ,async (req , res)=>{
     });
     if(error){
         // delete file on validation error from public/usersPic
-        const filePath = path.join(process.cwd(),"public/usersPic",(req.file?.filename ? req.file?.filename : ""));
+        const filePath = path.join(process.cwd(),"public/usersPic",(req.file?.filename ? req.file?.filename : "")); // filePath cannot be undefind
         fs.unlink(filePath,(error)=>{
             if(error){
                 console.log(error.message)
@@ -49,16 +49,19 @@ router.post("/signIn", upload.single("image") ,async (req , res)=>{
         res.status(401).send(error.message);
         return;
     }
+    // hashedPassword
     const hashedPassword = await bcrypt.hash(password,10);
     try {
         await Users.create({
             name : name,
             mobile : mobile,
             password : hashedPassword,
-            image : file?.filename  ? file.filename  : defaultImage,
+            image : file?.filename  ? file.filename  : defaultImage,   // if no image given set defaultImage 
             role : role
         });
+        // create jwt
         const token  = jwt.sign({name : name , mobile : mobile},process.env.SECRET_KEY,{expiresIn:"1440min"});
+        // set token in cookie and send to front
         res.cookie("accessToken",token,{
             httpOnly : true,
             secure : false,
