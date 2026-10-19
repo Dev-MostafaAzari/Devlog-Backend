@@ -40,7 +40,7 @@ router.post("/signIn", upload.single("image") ,async (req , res)=>{
     });
     if(error){
         // delete file on validation error from public/usersPic
-        const filePath = path.join(process.cwd(),"public/usersPic",req.file?.filename);
+        const filePath = path.join(process.cwd(),"public/usersPic",(req.file?.filename ? req.file?.filename : ""));
         fs.unlink(filePath,(error)=>{
             if(error){
                 console.log(error.message)
