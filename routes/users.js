@@ -8,6 +8,7 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const {UniqueConstraintError} = require("sequelize");
+const Auth = require("../middleware/auth");
 
 // file upload config
 const storage = multer.diskStorage({
@@ -20,6 +21,20 @@ const upload = multer({
 const defaultImage = "mypic.jpg";
 
 //get one user 
+router.get("/me",Auth,async(req,res)=>{
+    const user = await Users.findOne({
+        where : {mobile : req.user.mobile},
+        attributes : {
+            exclude : ["password"]
+        },
+    });
+    if(!user)
+    {
+        res.status(404).send("Somthing Went wrong");
+        return;
+    }
+    res.status(200).send(user);
+});
 
 
 // create user
@@ -61,7 +76,7 @@ router.post("/signIn", upload.single("image") ,async (req , res)=>{
             role : role
         });
         // create jwt
-        const token  = jwt.sign({name : name , mobile : mobile},process.env.SECRET_KEY,{expiresIn:"1440min"});
+        const token  = jwt.sign({name : name , mobile : mobile},process.env.SECRET_KEY,{expiresIn:24*60*60*1000});
         // set token in cookie and send to front
         res.cookie("accessToken",token,{
             httpOnly : true,
