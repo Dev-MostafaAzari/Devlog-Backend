@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
+const {UniqueConstraintError} = require("sequelize");
 
 // file upload config
 const storage = multer.diskStorage({
@@ -72,6 +73,11 @@ router.post("/signIn", upload.single("image") ,async (req , res)=>{
         res.status(201).send("your Account Created !");
     } catch (error) {
         let errorMessage = error.message;
+        if(error instanceof UniqueConstraintError)
+        {
+            res.status(409).send("This mobile number already exist!")
+            return;
+        }
         if(error.errors){
             error.errors.map(item => {
                 errorMessage = errorMessage + `\n ${item.message}`
