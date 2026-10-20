@@ -4,13 +4,13 @@ const jwt = require("jsonwebtoken");
 
 const Auth  = (req,res,next)=>{
     const token = req.cookies.accessToken;
-
     if(!token){
         return res.status(401).send("Authentication Required");
     }
 
     try {
-        jwt.verify(token , process.env.SECRET_KEY);
+        const decode = jwt.verify(token , process.env.SECRET_KEY);
+        req.user = decode;
         next();
     } catch (error) {
         res.status(401).send(error.message);
