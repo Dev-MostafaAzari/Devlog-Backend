@@ -20,6 +20,45 @@ const upload = multer({
 });
 const defaultImage = "mypic.jpg";
 
+// get user with mobile and password
+router.post("/login",async (req , res)=>{
+    const {mobile , password} = req.body;
+    const user  = await Users.findOne({
+        where : {mobile : mobile}
+    });
+    if(!user)
+    {
+        res.status(402).send("Mobile or Password is incorrect!");
+        return;
+    }
+    const isPassword = await bcrypt.compare(password , user.password);
+    if(!isPassword)
+    {
+        res.status(401).send("Mobile or Password is incorrect!");
+        return;
+    }
+    try {
+        const token = jwt.sign({name: user.name , mobile : user.mobile},process.env.SECRET_KEY,{expiresIn:24*60*60*1000});
+        res.cookie("accessToken",token,{
+            httpOnly : true,
+            secure : false,
+            sameSite :"lax",
+            maxAge : 24*60*60*1000,
+            path:"/"
+        });
+        res.status(200).send("login was successful");
+    } catch (error) {
+        let errorMessage = error.message;
+        if(error.errors)
+        {
+            error.errors.map(item => {
+                errorMessage = errorMessage + `\n ${item.message}`
+            });
+        };
+        res.status(500).send(errorMessage);
+    }
+});
+
 //get one user 
 router.get("/me",Auth,async(req,res)=>{
     const user = await Users.findOne({
