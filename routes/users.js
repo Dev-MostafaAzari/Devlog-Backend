@@ -28,7 +28,7 @@ router.post("/login",async (req , res)=>{
     });
     if(!user)
     {
-        res.status(402).send("Mobile or Password is incorrect!");
+        res.status(401).send("Mobile or Password is incorrect!");
         return;
     }
     const isPassword = await bcrypt.compare(password , user.password);

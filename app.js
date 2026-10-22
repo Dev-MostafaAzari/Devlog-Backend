@@ -36,7 +36,7 @@ app.use("/users",users);
 const port = 5000;
 const startServer = async ()=>{
     try {
-        await database.sync({force:true})
+        await database.sync(/* {force:true} */)
         app.listen(port , ()=>{
             console.log(`server is running on port ${port}`)
         })
