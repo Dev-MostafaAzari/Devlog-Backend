@@ -22,13 +22,16 @@ app.use(express.static("public"));
 // ----routes----
 
 //models
+const Articles = require("./models/articles");
+const Users = require("./models/users");
 
 // users
 const users = require("./routes/users");
 app.use("/users",users);
 
-//ralations
-
+//relations
+Users.hasMany(Articles);
+Articles.belongsTo(Users);
 
 
 
@@ -36,7 +39,7 @@ app.use("/users",users);
 const port = 5000;
 const startServer = async ()=>{
     try {
-        await database.sync(/* {force:true} */)
+        await database.sync({force:true})
         app.listen(port , ()=>{
             console.log(`server is running on port ${port}`)
         })
