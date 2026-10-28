@@ -59,7 +59,7 @@ router.post("/login",async (req , res)=>{
     }
 });
 
-//get one user 
+//get one user (login using jwt) 
 router.get("/me",Auth,async(req,res)=>{
     const user = await Users.findOne({
         where : {mobile : req.user.mobile},
@@ -73,6 +73,29 @@ router.get("/me",Auth,async(req,res)=>{
         return;
     }
     res.status(200).send(user);
+});
+
+// logout 
+
+router.post("/me/logout",(req,res)=>{
+    try {
+        res.clearCookie("accessToken",{
+            httpOnly : true,
+            secure : false,
+            sameSite : "lax",
+            path:"/"
+        });
+        res.status(200).send("Logout Successful");
+    } catch (error) {
+        let errorMessage = error.message;
+        if(error.errors)
+        {
+            error.errors.map(item => {
+                errorMessage = errorMessage + `\n ${item.message}`
+            });
+        };
+        res.status(500).send(errorMessage);
+    }
 });
 
 
