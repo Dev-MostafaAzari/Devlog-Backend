@@ -19,17 +19,23 @@ app.use(cookieParser());
 // public files
 app.use(express.static("public"));
 
-// ----routes----
 
-//models
+
+//----models----
 const Articles = require("./models/articles");
 const Users = require("./models/users");
+
+// ----routes----
 
 // users
 const users = require("./routes/users");
 app.use("/users",users);
+// articles
+const articles = require("./routes/articles");
+app.use("/articles",articles);
 
-//relations
+
+//----relations----
 Users.hasMany(Articles);
 Articles.belongsTo(Users);
 
