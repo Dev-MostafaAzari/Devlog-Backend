@@ -10,6 +10,7 @@ const Auth = require("../middleware/auth");
 const fs = require("fs");
 const path = require("path");
 const {UniqueConstraintError} = require("sequelize");
+const SanitizeContent = require("../utilities/sanitizeHtml");
 
 
 // upload image config
@@ -46,6 +47,8 @@ router.post("/me/article/create",Auth,upload.single("image"),async(req,res)=>{
     const userId = user.id;
     const file = req.file;
     const {state , title , content , category} = req.body;
+    // cleaning content
+    const cleanContent = SanitizeContent(content);
     const schema = Joi.object({
         state : Joi.string().required(),
         title : Joi.string().min(3).required(),
@@ -56,7 +59,7 @@ router.post("/me/article/create",Auth,upload.single("image"),async(req,res)=>{
     const {error} = schema.validate({
         state : state,
         title : title,
-        content : content,
+        content : cleanContent,
         category : category,
         image : file?.filename ? file.filename : null,
     });
@@ -75,7 +78,7 @@ router.post("/me/article/create",Auth,upload.single("image"),async(req,res)=>{
         await Articles.create({
             state : state,
             title : title ,
-            content : content,
+            content : cleanContent,
             category : category,
             image : file?.filename ? file.filename : null,
             userId : userId
