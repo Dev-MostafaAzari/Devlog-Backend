@@ -21,9 +21,8 @@ const Articles = database.define("articles",{
         allowNull : false,
     },
     content : {
-        type : DataTypes.STRING,
+        type : DataTypes.TEXT,
         allowNull : false,
-        unique : true
     },
     category : {
         type : DataTypes.STRING,
