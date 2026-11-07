@@ -12,10 +12,24 @@ const Users = database.define("users",{
     name : {
         type : DataTypes.STRING,
         allowNull : false,
+        unique : true,
+    },
+    firstname:{
+        type : DataTypes.STRING,
+        allowNull : true,
+    },
+    lastname : {
+        type : DataTypes.STRING,
+        allowNull : true,
     },
     mobile : {
         type : DataTypes.STRING,
         allowNull : false,
+        unique : true,
+    },
+    email : {
+        type : DataTypes.STRING,
+        allowNull : true,
         unique : true,
     },
     password : {
@@ -29,6 +43,18 @@ const Users = database.define("users",{
     role : {
         type : DataTypes.STRING,
         allowNull : false,
+    },
+    social_1 : {
+        type : DataTypes.STRING,
+        allowNull : true,
+    },
+    social_2 : {
+        type : DataTypes.STRING,
+        allowNull : true,
+    },
+    social_3 : {
+        type : DataTypes.STRING,
+        allowNull : true,
     }
 });
 
