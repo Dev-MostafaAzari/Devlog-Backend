@@ -165,7 +165,77 @@ router.post("/signIn", upload.single("image") ,async (req , res)=>{
 });
 
 //updata user
-
+router.put("/me/profile",Auth, upload.single("image"),async (req,res)=>{
+    const {name, firstname, lastname, mobile, email, social_1, social_2, social_3} = req.body;
+    const file = req.file;
+    const user = await Users.findOne({
+        where : {mobile : req.user.mobile}
+    });
+    if(!user)
+    {
+        res.status(404).send("user not found");
+        return;
+    }
+    const schema = Joi.object({
+        name : Joi.string().regex(/^[a-zA-Z]+[0-9]+$/),
+        firstname : Joi.string().regex(/^[a-zA-Z]+$/),
+        lastname : Joi.string().regex(/^[a-zA-Z]+$/),
+        mobile : Joi.string().min(10),
+        email : Joi.string().email(),
+        social_1 : Joi.string(),
+        social_2 : Joi.string(),
+        social_3 : Joi.string(),
+        image : file?.fieldname ? Joi.string() : Joi.any(),
+    });
+    const {error} = schema.validate({
+        name : name,
+        firstname : firstname,
+        lastname : lastname,
+        mobile : mobile,
+        email : email,
+        social_1 : social_1,
+        social_2 : social_2,
+        social_3 : social_3,
+    });
+    if(error)
+    {
+        const filePath = path.join(process.cwd(),"public/usersPic",(req.file?.filename ? req.file?.filename : "")); // filePath cannot be undefind
+        fs.unlink(filePath,(error)=>{
+            if(error){
+                console.log(error.message)
+            }
+        })
+        res.status(401).send("validation error");
+        return;
+    }
+    try {
+        await user.update({
+            name : name,
+            firstname : firstname,
+            lastname : lastname,
+            mobile : mobile,
+            email : email,
+            social_1 : social_1,
+            social_2 : social_2,
+            social_3 : social_3,
+            image : file?.filename
+        });
+        res.status(201).send("Profile updated")
+    } catch (error) {
+        let errorMessage = error.message;
+        if(error instanceof UniqueConstraintError)
+        {
+            res.status(409).send(error.message)
+            return;
+        }
+        if(error.errors){
+            error.errors.map(item => {
+                errorMessage = errorMessage + `\n ${item.message}`
+            })
+        }
+        res.status(500).send(errorMessage);
+    }
+})
 
 
 
