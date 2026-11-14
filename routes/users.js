@@ -166,7 +166,7 @@ router.post("/signIn", upload.single("image") ,async (req , res)=>{
 
 //updata user
 router.put("/me/profile",Auth, upload.single("image"),async (req,res)=>{
-    const {name, firstname, lastname, mobile, email, social_1, social_2, social_3} = req.body;
+    const {firstname, lastname, email, social_1, social_2, social_3} = req.body;
     const file = req.file;
     const user = await Users.findOne({
         where : {mobile : req.user.mobile}
@@ -177,22 +177,19 @@ router.put("/me/profile",Auth, upload.single("image"),async (req,res)=>{
         return;
     }
     const schema = Joi.object({
-        name : Joi.string().regex(/^[a-zA-Z]+[0-9]+$/),
         firstname : Joi.string().regex(/^[a-zA-Z]+$/),
         lastname : Joi.string().regex(/^[a-zA-Z]+$/),
-        mobile : Joi.string().min(10),
         email : Joi.string().email(),
-        social_1 : Joi.string(),
-        social_2 : Joi.string(),
-        social_3 : Joi.string(),
-        image : file?.fieldname ? Joi.string() : Joi.any(),
+        social_1 : social_1 ? Joi.string() : Joi.any(),
+        social_2 : social_2 ? Joi.string() : Joi.any(),
+        social_3 : social_3 ? Joi.string() : Joi.any(),
+        image : file?.filename ? Joi.string() : Joi.any(),
     });
     const {error} = schema.validate({
-        name : name,
         firstname : firstname,
         lastname : lastname,
-        mobile : mobile,
         email : email,
+        image : file?.filename,
         social_1 : social_1,
         social_2 : social_2,
         social_3 : social_3,
@@ -209,11 +206,15 @@ router.put("/me/profile",Auth, upload.single("image"),async (req,res)=>{
         return;
     }
     try {
+        const filePath = path.join(process.cwd(),"public/usersPic",(user.image ? user.image : "")); // filePath cannot be undefind
+        fs.unlink(filePath,(error)=>{
+            if(error){
+                console.log(error.message)
+            }
+        });
         await user.update({
-            name : name,
             firstname : firstname,
             lastname : lastname,
-            mobile : mobile,
             email : email,
             social_1 : social_1,
             social_2 : social_2,
