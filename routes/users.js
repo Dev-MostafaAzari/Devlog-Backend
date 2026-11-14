@@ -100,30 +100,21 @@ router.post("/me/logout",(req,res)=>{
 
 
 // create user
-router.post("/signIn", upload.single("image") ,async (req , res)=>{
-    const file = req.file;
+router.post("/signIn" ,async (req , res)=>{
+
     const {name , mobile , password} = req.body;
     const role = "user";
     const schema = Joi.object({
         name : Joi.string().min(3).required(),
         mobile : Joi.string().min(10).required(),
         password : Joi.string().min(6).required(),
-        image : Joi.string().required()
     });
     const {error} = schema.validate({
         name : name,
         mobile : mobile,
         password : password,
-        image : file?.filename ? file.filename  : defaultImage
     });
     if(error){
-        // delete file on validation error from public/usersPic
-        const filePath = path.join(process.cwd(),"public/usersPic",(req.file?.filename ? req.file?.filename : "")); // filePath cannot be undefind
-        fs.unlink(filePath,(error)=>{
-            if(error){
-                console.log(error.message)
-            }
-        })
         res.status(401).send(error.message);
         return;
     }
@@ -134,7 +125,7 @@ router.post("/signIn", upload.single("image") ,async (req , res)=>{
             name : name,
             mobile : mobile,
             password : hashedPassword,
-            image : file?.filename  ? file.filename  : defaultImage,   // if no image given set defaultImage 
+            image : null,   // if no image given set defaultImage 
             role : role
         });
         // create jwt
