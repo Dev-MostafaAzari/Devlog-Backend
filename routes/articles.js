@@ -9,7 +9,7 @@ const multer = require("multer");
 const Auth = require("../middleware/auth");
 const fs = require("fs");
 const path = require("path");
-const {UniqueConstraintError} = require("sequelize");
+const {UniqueConstraintError, where} = require("sequelize");
 const SanitizeContent = require("../utilities/sanitizeHtml");
 
 
@@ -31,6 +31,42 @@ const upload = multer({
 
 //get all user articles
 
+//get user TotalArticle, Published, Draft, last 4 articles
+router.get("/me/dashboard",Auth,async(req,res)=>{
+    const user = await Users.findOne({
+        where : {mobile : req.user.mobile},
+        attributes : {
+            exclude : ["password"]
+        }
+    });
+    if(!user)
+    {
+        res.status(401).send("User not Found")
+    }
+    const userId = user.id;
+    const userName = user.name;
+    try {
+        const TotalArticles = await Articles.count({
+            where : {userId : userId},
+        });
+        const PublishedArticles = await Articles.count({
+            where : {userId:userId,state:"published"}
+        });
+        const DraftedArticles = await Articles.count({
+            where : {userId:userId,state:"draft"}
+        });
+        const AllArticles = await Articles.findAll({
+            where : {userId:userId},
+            attributes : {
+                exclude : ["content","category","createdAt","updatedAt","userId"]
+            },
+        });
+        const RecentArticles = AllArticles.slice(-4).reverse();
+        res.status(200).send({userName:userName,total:TotalArticles,published:PublishedArticles,drafted:DraftedArticles,recent:RecentArticles});
+    } catch (error) {
+        res.status(500).send("Somthing Went Wrong");
+    }
+})
 
 //create user article
 router.post("/me/article/create",Auth,upload.single("image"),async(req,res)=>{
@@ -41,7 +77,7 @@ router.post("/me/article/create",Auth,upload.single("image"),async(req,res)=>{
         }
     });
     if(!user){
-        res.status(500).send("Somthing Went Wrong");
+        res.status(401).send("Somthing Went Wrong");
         return;
     }
     const userId = user.id;
