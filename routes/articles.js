@@ -29,7 +29,43 @@ const upload = multer({
 //get all articles (public ones)
 
 
-//get all user articles
+//get all user articles (with pagination)
+router.get("/me/myArticles",Auth,async(req,res)=>{
+    const user  = await Users.findOne({
+        where : {mobile : req.user.mobile},
+        attributes : {
+            exclude : ["password"]
+        }
+    });
+    if(!user)
+    {
+        res.status(404).send("User not Found");
+        return;
+    }
+    const userId = user.id;
+    const {page,qty} = req.query;
+    const currentPage = page ? page : 1;
+    const limit =  qty ? qty : 4 ;
+    try {
+        const articles = await Articles.findAll({
+            where : {userId:userId},
+            attributes : {
+                exclude : ["content","category","createdAt","updatedAt","userId"]
+            },
+            limit : limit,
+            offset : limit * (currentPage-1)
+        });
+        const TotalArticles = await Articles.count({
+            where : {userId : userId}
+        });
+        const lastPage = Math.ceil(TotalArticles/limit);
+        res.status(200).send({articles:articles,lastPage:lastPage,currentPage:currentPage});
+    } catch (error) {
+        res.status(500).send("somthing went wrong");
+    }
+})
+
+
 
 //get user TotalArticle, Published, Draft, last 4 articles
 router.get("/me/dashboard",Auth,async(req,res)=>{
@@ -42,6 +78,7 @@ router.get("/me/dashboard",Auth,async(req,res)=>{
     if(!user)
     {
         res.status(401).send("User not Found")
+        return;
     }
     const userId = user.id;
     const userName = user.name;
